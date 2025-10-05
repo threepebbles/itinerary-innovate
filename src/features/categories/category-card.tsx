@@ -4,7 +4,8 @@ import type { Category } from '@/entities/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { GripVertical, Plus, Trash2, MapPin } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { GripVertical, Plus, Trash2, MapPin, ChevronDown } from 'lucide-react';
 import { db } from '@/mock/db';
 import { getPlacesByCategory } from '@/mock/edge-functions/place';
 import { PlaceSearchDialog } from '@/features/places/place-search-dialog';
@@ -19,6 +20,7 @@ interface CategoryCardProps {
 
 export const CategoryCard = ({ category, workspaceId }: CategoryCardProps) => {
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const places = useLiveQuery(async () => {
     return await getPlacesByCategory(category.id);
@@ -44,56 +46,71 @@ export const CategoryCard = ({ category, workspaceId }: CategoryCardProps) => {
 
   return (
     <>
-      <Card className="hover-lift">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: category.color }}
-            />
-            <CardTitle className="text-base flex-1">{category.name}</CardTitle>
-            {representativePlace && (
-              <Badge variant="secondary" className="gap-1 text-xs">
-                <MapPin className="w-3 h-3" />
-                대표
-              </Badge>
-            )}
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-2">
-          {places && places.length > 0 ? (
-            <div className="space-y-2">
-              {places.map((place) => (
-                <PlaceItem
-                  key={place.id}
-                  place={place}
-                  categoryId={category.id}
-                  isRepresentative={place.id === category.representativePlaceId}
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <Card className="hover-lift">
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 cursor-pointer hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" onClick={(e) => e.stopPropagation()} />
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: category.color }}
                 />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              장소를 추가해보세요
-            </p>
-          )}
+                <CardTitle className="text-base flex-1">{category.name}</CardTitle>
+                {representativePlace && (
+                  <Badge variant="secondary" className="gap-1 text-xs">
+                    <MapPin className="w-3 h-3" />
+                    대표
+                  </Badge>
+                )}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full gap-2"
-            onClick={() => setSearchDialogOpen(true)}
-          >
-            <Plus className="w-4 h-4" />
-            장소 검색
-          </Button>
-        </CardContent>
-      </Card>
+          <CollapsibleContent>
+            <CardContent className="space-y-2">
+              {places && places.length > 0 ? (
+                <div className="space-y-2">
+                  {places.map((place) => (
+                    <PlaceItem
+                      key={place.id}
+                      place={place}
+                      categoryId={category.id}
+                      isRepresentative={place.id === category.representativePlaceId}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  장소를 추가해보세요
+                </p>
+              )}
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-2"
+                onClick={() => setSearchDialogOpen(true)}
+              >
+                <Plus className="w-4 h-4" />
+                장소 검색
+              </Button>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       <PlaceSearchDialog
         open={searchDialogOpen}
