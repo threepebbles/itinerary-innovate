@@ -46,6 +46,26 @@ export const MapCanvas = ({ workspaceId, categories }: MapCanvasProps) => {
     };
 
     mapInstance.current = new window.kakao.maps.Map(container, options);
+
+    // Handle map relayout on window resize
+    const handleResize = () => {
+      if (mapInstance.current) {
+        mapInstance.current.relayout();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    // Initial relayout
+    setTimeout(() => {
+      if (mapInstance.current) {
+        mapInstance.current.relayout();
+      }
+    }, 100);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, [ready]);
 
   // Update markers and route

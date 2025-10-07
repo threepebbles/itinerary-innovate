@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { registerUser } from '@/mock/edge-functions/auth';
+import { registerUser, loginUser } from '@/mock/edge-functions/auth';
+import { useAuthStore } from '@/shared/stores/auth-store';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
@@ -25,8 +27,19 @@ export const RegisterForm = () => {
       return;
     }
 
-    toast.success('회원가입 성공! 로그인해주세요.');
-    navigate('/auth?tab=login');
+    // Auto-login after successful registration
+    const loginResult = await loginUser({ email, password });
+    
+    if (loginResult.error || !loginResult.user || !loginResult.token) {
+      toast.error('회원가입은 성공했으나 로그인에 실패했습니다.');
+      setLoading(false);
+      navigate('/auth?tab=login');
+      return;
+    }
+
+    setAuth(loginResult.user, loginResult.token);
+    toast.success('회원가입 완료!');
+    navigate('/workspaces');
   };
 
   return (
