@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { useWorkspaceStore } from '@/shared/stores/workspace-store';
 import { db } from '@/mock/db';
-import { Plus, LogOut, Settings, Calendar, Users } from 'lucide-react';
+import { Plus, LogOut, Settings, Calendar, Users, ArrowLeft } from 'lucide-react';
 import { CreateWorkspaceDialog } from '@/features/workspaces/create-workspace-dialog';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -58,9 +58,14 @@ const Workspaces = () => {
     <div className="min-h-screen bg-gradient-card">
       <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">코스잇다</h1>
-            <p className="text-sm text-muted-foreground">{user.nickname}님, 환영합니다!</p>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">코스잇다</h1>
+              <p className="text-sm text-muted-foreground">{user.nickname}님, 환영합니다!</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="icon" onClick={() => navigate('/settings')}>

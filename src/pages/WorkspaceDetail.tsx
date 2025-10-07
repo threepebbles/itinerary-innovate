@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/mock/db';
 import { useAuthStore } from '@/shared/stores/auth-store';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+import { Settings, ArrowLeft } from 'lucide-react';
 import { CategoryList } from '@/features/categories/category-list';
 import { MapCanvas } from '@/features/map/map-canvas';
 import { useSettingsStore } from '@/shared/stores/settings-store';
@@ -71,6 +71,9 @@ const WorkspaceDetail = () => {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-20 shrink-0">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/workspaces')} className="shrink-0">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <NavigationDrawer
               workspaces={workspaces || []}
               currentWorkspaceId={workspace.id}
@@ -104,7 +107,7 @@ const WorkspaceDetail = () => {
       <main className="flex-1 container mx-auto px-4 py-4 overflow-hidden">
         <div className="h-full flex flex-col md:grid md:grid-cols-2 gap-4">
           {/* Map Section - Always on top on mobile */}
-          <div className="h-64 md:h-full rounded-xl overflow-hidden border border-border/50 shadow-lg bg-card order-1">
+          <div className="h-64 md:h-[calc(100vh-120px)] rounded-xl overflow-hidden border border-border/50 shadow-lg bg-card order-1">
             {kakaoJsApiKey ? (
               <MapCanvas workspaceId={workspace.id} categories={categories || []} />
             ) : (
@@ -122,7 +125,7 @@ const WorkspaceDetail = () => {
           </div>
 
           {/* Categories Section - Below map on mobile */}
-          <div className="flex-1 md:h-full overflow-y-auto rounded-xl border border-border/50 bg-card p-4 order-2">
+          <div className="flex-1 md:h-[calc(100vh-120px)] overflow-y-auto rounded-xl border border-border/50 bg-card p-4 order-2">
             <CategoryList workspaceId={workspace.id} categories={categories || []} />
           </div>
         </div>
