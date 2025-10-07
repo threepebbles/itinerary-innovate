@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/a0204919-496a-4c70-9380-eb35ce6e30ed
+**URL**: https://itinerary-innovate.lovable.app/workspaces
 
 ## How can I edit this code?
 
