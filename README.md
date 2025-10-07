@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://itinerary-innovate.lovable.app/workspaces
+**URL**: https://itinerary-innovate.lovable.app
 
 ## How can I edit this code?
 
