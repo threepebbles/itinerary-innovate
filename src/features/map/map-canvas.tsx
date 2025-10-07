@@ -68,23 +68,61 @@ export const MapCanvas = ({ workspaceId, categories }: MapCanvasProps) => {
     const bounds = new kakao.maps.LatLngBounds();
     const markers: any[] = [];
 
+    // Create a map to track representative places and their order
+    const representativeMap = new Map<string, number>();
+    categories.forEach((cat, index) => {
+      if (cat.representativePlaceId) {
+        representativeMap.set(cat.representativePlaceId, index + 1);
+      }
+    });
+
     // Add markers for all places
     allPlacesData.forEach(({ place, category }) => {
       const position = new kakao.maps.LatLng(place.lat, place.lng);
       bounds.extend(position);
 
+      const isRepresentative = category.representativePlaceId === place.id;
+      const categoryOrder = representativeMap.get(place.id);
+
       const markerContent = document.createElement('div');
-      markerContent.style.width = '32px';
-      markerContent.style.height = '32px';
-      markerContent.style.borderRadius = '50%';
-      markerContent.style.backgroundColor = category.color;
-      markerContent.style.border = '3px solid white';
-      markerContent.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-      markerContent.style.cursor = 'pointer';
+      
+      if (isRepresentative && categoryOrder) {
+        // Representative place marker with number
+        markerContent.style.cssText = `
+          width: 32px;
+          height: 32px;
+          background-color: ${category.color};
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          color: white;
+          font-size: 14px;
+          cursor: pointer;
+          z-index: 100;
+        `;
+        markerContent.textContent = String(categoryOrder);
+      } else {
+        // Regular place marker (smaller, no number)
+        markerContent.style.cssText = `
+          width: 20px;
+          height: 20px;
+          background-color: ${category.color};
+          border: 2px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          cursor: pointer;
+          z-index: 50;
+        `;
+      }
 
       const customOverlay = new kakao.maps.CustomOverlay({
         position,
         content: markerContent,
+        zIndex: isRepresentative ? 100 : 50,
       });
 
       customOverlay.setMap(map);
@@ -92,8 +130,8 @@ export const MapCanvas = ({ workspaceId, categories }: MapCanvasProps) => {
 
       // Add click event to set as representative
       markerContent.addEventListener('click', async () => {
-        const isRepresentative = category.representativePlaceId === place.id;
-        const newPlaceId = isRepresentative ? null : place.id;
+        const currentIsRepresentative = category.representativePlaceId === place.id;
+        const newPlaceId = currentIsRepresentative ? null : place.id;
         
         const { error } = await setRepresentativePlace(category.id, newPlaceId);
         
@@ -101,14 +139,14 @@ export const MapCanvas = ({ workspaceId, categories }: MapCanvasProps) => {
           toast.error(error);
         } else {
           toast.success(
-            isRepresentative ? '대표 장소가 해제되었습니다.' : `"${place.name}"을(를) 대표 장소로 설정했습니다.`
+            currentIsRepresentative ? '대표 장소가 해제되었습니다.' : `"${place.name}"을(를) 대표 장소로 설정했습니다.`
           );
         }
       });
 
       // Add info window on hover
       const infoWindow = new kakao.maps.InfoWindow({
-        content: `<div style="padding:8px;font-size:12px;font-weight:500;white-space:nowrap;">${place.name}</div>`,
+        content: `<div style="padding:8px;font-size:12px;font-weight:500;white-space:nowrap;">${place.name}${isRepresentative ? ' ⭐' : ''}</div>`,
       });
 
       markerContent.addEventListener('mouseenter', () => {
